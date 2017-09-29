@@ -48,8 +48,7 @@ class Model:
 			self._loss = loss = tf.reduce_sum(losses)
 
 		if phase == Phase.Train:
-			start_lr = 0.005
-			self._train_op = tf.train.AdamOptimizer(start_lr).minimize(losses)
+			self._train_op = tf.train.AdamOptimizer(config.learning_rate).minimize(losses)
 			self._probs = probs = tf.nn.softmax(logits)
 
 		if phase == Phase.Validation:

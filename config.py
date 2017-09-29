@@ -6,3 +6,4 @@ class DefaultConfig:
 	LSTM_sz = 300
 	dropout_ratio = 0.9
 	embedding_sz = 100
+	learning_rate = 0.003
