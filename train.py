@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 # Authors:	Peter Schoener, 4013996
-#			Luana Vaduva, 3974913
+#			Alon Borenstein,
+#			Daniel Nagel.
 # Honor Code: We pledge that this program represents our own work.
 
 from enum import Enum
@@ -11,33 +12,25 @@ import re
 
 import numpy as np
 import tensorflow as tf
-import gensim
 from sklearn import metrics
 
-from bs4 import BeautifulSoup
-# from guess_language import guess_language
+# from bs4 import BeautifulSoup
 
 from config import DefaultConfig
 from model import Model, Phase
 from numberer import Numberer
 
 def preprocess(text):
-	#convert to lower case
+	# convert to lowercase
 	text = text.lower()
-	#convert www.* or https?://* to URL
-	text = re.sub('((www\.[^\s]+)|(https?://[^\s]+))','URL',text)
-	#convert @username to AT_USER
-	text = re.sub('@[^\s]+','AT_USER',text)
-	#remove additional white spaces
-	text = re.sub('[\s]+', ' ', text)
-	#replace #word with word
-	text = re.sub(r"#", r"", text) # should be equivalent for our purposes
-	#trim
-	text = text.strip('\'"')
-	#get rid of HTML markup
-	soup = BeautifulSoup(text, "html5lib")
-
-	return soup.get_text()
+	# strip URLs (imperfect)
+	text = re.sub(r"((www\.[^\s]+)|(https?://[^\s]+))", "", text)
+	# strip @ mentions
+	text = re.sub(r"@[^\s]+", "", text)
+	# replace hashtags
+	text = text.replace("#", "")
+	
+	return text
 
 
 def read_lexicon(filename):
