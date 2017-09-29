@@ -9,12 +9,8 @@ class Phase(Enum):
 	Validation = 1
 	Predict = 2
 
-def get_dimensionality(model) :
-	for k, v in model.vocab.items() : # this should only reach the first item before returning but it seemed like the most elegant way to get the "first" item of the keyset
-		return len(model[k])
-
 class Model:
-	def __init__(self, config, batch, lens_batch, label_batch, embedding_model, n_chars, numberer, phase = Phase.Predict):
+	def __init__(self, config, batch, lens_batch, label_batch, n_chars, numberer, phase = Phase.Predict):
 		batch_size = batch.shape[1]
 		input_size = batch.shape[2]
 		label_size = label_batch.shape[2]
@@ -33,15 +29,8 @@ class Model:
 				tf.float32, shape=[batch_size, label_size])
 
 		# convert to embeddings
-		embedding_sz = get_dimensionality(embedding_model)
-		self._embedding_model = numpy.zeros((numberer.max_number(), embedding_sz)).astype(numpy.float32)
-		for word in numberer.n2v :
-			if word in embedding_model :
-				self._embedding_model[numberer.number(word)] = embedding_model[word].astype(numpy.float32)
-			else :
-				self._embedding_model[numberer.number(word)] = (numpy.random.ranf(100) * 2) - 1
-		
-		input_layer = tf.nn.embedding_lookup(self._embedding_model, self._x)
+		embeddings = tf.get_variable("embeddings", shape = [n_chars, config.embedding_sz])
+		input_layer = tf.nn.embedding_lookup(embeddings, self._x)
 
 		# make a bunch of LSTM cells and link them
 		# use rnn.DropoutWrapper instead of tf.nn.dropout because the layers are anonymous
